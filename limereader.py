@@ -7,7 +7,7 @@ import time
 
 class LimeReader:
   #at first one has to initialize SDR. Init method sets all preferences and setups the data streams
-  def __init__(self, cent_freq, meas_time, rx_bw, fs, channel): #rx_bw - bandwidth, fs - sampling rate
+  def __init__(self, cent_freq, meas_time, fs, rx_bw, channel): #rx_bw - bandwidth, fs - sampling rate
     self.channel = channel
     use_agc = True          # Use or don't use the AGC
     self.freq = cent_freq            # LO tuning frequency in Hz
@@ -17,7 +17,6 @@ class LimeReader:
     RX1 = 0             # RX1 = 0, RX2 = 1
     RX2 = 1
     self.fs=fs
-    #rx_bw=rx_bw*2
     self.sdr = SoapySDR.Device(dict(driver="lime")) # Create AIR-T instance
       
     if (len(self.channel) == 2):
@@ -152,7 +151,7 @@ if __name__ == "__main__":
   parser.add_argument("--filename", type=str, action='append', nargs='+', help="Path to saved file")
   args = parser.parse_args()
   
-  if args.time and args.samprate and args.bw and args.filename and args.channel:
+  if args.time and args.samprate and args.filename and args.channel and args.bw:
     print ("Central frequency set to ", args.center, " Hz.")
     print ("Measurement time set to ", args.time, " sec.")
     print ("Sampling rate set to ", args.samprate, " Samples/sec.")
@@ -162,7 +161,7 @@ if __name__ == "__main__":
       print ("Reading from channels ", args.channel[0])
       print ("file saved as: ", args.filename[0][0])
       #initialize Lime SDR with entered measure time, bandwidth, sampling rate
-      Lime = LimeReader(args.center, args.time, args.bw, args.samprate, args.channel)
+      Lime = LimeReader(args.center, args.time, args.samprate, args.bw, args.channel) 
       Lime.getsignal()
       Lime.convertsig()
       Lime.savetofile(args.filename[0])
@@ -171,7 +170,7 @@ if __name__ == "__main__":
       print ("Reading from channels ", args.channel[0],args.channel[1])
       print ("file saved as: ", args.filename[0][0], args.filename[0][1])
   #initialize Lime SDR with entered measure time, bandwidth, sampling rate
-      Lime = LimeReader(args.center, args.time, args.bw, args.samprate, args.channel)
+      Lime = LimeReader(args.center, args.time, args.samprate, args.bw, args.channel) 
       Lime.getsignal()
       Lime.convertsig()
       Lime.savetofile(args.filename[0])
