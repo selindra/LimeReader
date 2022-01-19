@@ -7,7 +7,7 @@ python3 lime.py --time [measurement time in seconds] --samprate [sampling rate i
 
 example: 
 
- python3 lime.py --time 1 --center 244e6 --samprate 31.25e5 --bw 6e6 --channel 1 2 --filename test12.bin test22.bin
+ python3 limereader.py --center 244e6 --time 1 --fs 31.25e5 --bw 6e6 --channel 1 2 --filename test12.bin test22.bin
 
 Here are my installation history entries from oldest to newest
 

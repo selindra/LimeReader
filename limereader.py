@@ -110,21 +110,21 @@ class LimeReader:
       RX2complex = np.complex64(RX2complex)
       self.RX1complex = np.insert(RX1complex, 0, (self.fs + 1j*self.freq) )
       self.RX2complex = np.insert(RX2complex, 0, (self.fs + 1j*self.freq) )
-      #return RX1complex, RX2complex
+      return RX1complex, RX2complex
    
     elif(self.channel[0] == 1):
       RX1bits = self.RX1_buff.astype(float) / np.power(2.0, self.rx_bits-1)
       RX1complex = (RX1bits[::2] + 1j*RX1bits[1::2]) 
       RX1complex = np.insert(RX1complex, 0, (self.fs + 1j*self.freq) )
       self.RX1complex = np.complex64(RX1complex)
-      #return RX1complex
+      return RX1complex
    
     elif(self.channel[0] == 2):
       RX2bits = self.RX2_buff.astype(float) / np.power(2.0, self.rx_bits-1)
       RX2complex = (RX2bits[::2] + 1j*RX2bits[1::2]) 
       RX2complex = np.insert(RX2complex, 0, (self.fs+ 1j*self.freq) )
       self.RX2complex = np.complex64(RX2complex)
-      #return RX2complex
+      return RX2complex
 
   def savetofile(self, filenames):
     if(len(self.channel) == 2):
@@ -140,24 +140,25 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--center", type=float, nargs='?', help="Set local oscillator frequency")
   parser.add_argument("--time", type=int, nargs='?', help="Set measurement time")
-  parser.add_argument("--samprate", type=float, nargs='?', help="Set sampling rate")
+  parser.add_argument("--fs", type=float, nargs='?', help="Set sampling rate")
   parser.add_argument("--bw", type=float, nargs='?', help="Set bandwidth")
   parser.add_argument("--channel", type=int, nargs='+', help="Set channels to read data from")
   parser.add_argument("--filename", type=str, action='append', nargs='+', help="Path to saved file")
   args = parser.parse_args()
   
-  if args.time and args.samprate and args.filename and args.channel and args.bw:
+  if args.time and args.fs and args.filename and args.channel and args.bw:
     print ("Central frequency set to ", args.center, " Hz.")
     print ("Measurement time set to ", args.time, " sec.")
-    print ("Sampling rate set to ", args.samprate, " Samples/sec.")
+    print ("Sampling rate set to ", args.fs, " Samples/sec.")
     print ("Bandwidth set to ", args.bw, " Hz.")
 
     if ( len(args.channel) == len(args.filename[0]) and len(args.channel) == 1 ):
       print ("Reading from channels ", args.channel[0])
       print ("file saved as: ", args.filename[0][0])
       #initialize Lime SDR with entered measure time, bandwidth, sampling rate
-      Lime = LimeReader(args.center, args.time, args.samprate, args.bw, args.channel) 
+      Lime = LimeReader(args.center, args.time, args.fs, args.bw, args.channel) 
       Lime.getsignal()
+      Lime.stopstream()
       Lime.convertsig()
       Lime.savetofile(args.filename[0])
     
@@ -165,10 +166,10 @@ if __name__ == "__main__":
       print ("Reading from channels ", args.channel[0],args.channel[1])
       print ("file saved as: ", args.filename[0][0], args.filename[0][1])
   #initialize Lime SDR with entered measure time, bandwidth, sampling rate
-      Lime = LimeReader(args.center, args.time, args.samprate, args.bw, args.channel) 
+      Lime = LimeReader(args.center, args.time, args.fs, args.bw, args.channel) 
       Lime.getsignal()
-      Lime.convertsig()
       Lime.stopstream()
+      Lime.convertsig()
       Lime.savetofile(args.filename[0])
       
       
