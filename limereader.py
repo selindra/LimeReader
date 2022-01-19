@@ -1,6 +1,5 @@
 import numpy as np
 import argparse
-from matplotlib import pyplot as plt
 import SoapySDR
 from SoapySDR import SOAPY_SDR_RX, SOAPY_SDR_CS16
 import time 
@@ -9,7 +8,6 @@ class LimeReader:
   #at first one has to initialize SDR. Init method sets all preferences and setups the data streams
   def __init__(self, cent_freq, meas_time, fs, rx_bw, channel): #rx_bw - bandwidth, fs - sampling rate
     self.channel = channel
-    use_agc = True          # Use or don't use the AGC
     self.freq = cent_freq            # LO tuning frequency in Hz
     self.timeout_us = int(5e6)
     self.n = int(fs * meas_time)               # Number of complex samples per transfer
@@ -82,7 +80,6 @@ class LimeReader:
 
   #this function reads stream of data and puts it in self.rx_stream numpy array   
   def getsignal(self):
-   #try:
     #  Initialize the AIR-T receiver using SoapyAIRT
     self.sdr.activateStream(self.rx_stream)  # this turns the radio on
      # Read the samples from the data buffer
@@ -97,11 +94,9 @@ class LimeReader:
     assert rc == self.n, 'Error Reading Samples from Device (error code = %d)!' % rc
    
     # Stop stream
-   #except(KeyboardInterrupt, EOFError): 
+  def stopstream(self):
     self.sdr.deactivateStream(self.rx_stream)
     self.sdr.closeStream(self.rx_stream)
-      #print("Stream closed")
-      #time.sleep(0.1)
     
   #this function makes complex64 from ADC bits and saves it as binary file  
   def convertsig(self):
@@ -173,7 +168,9 @@ if __name__ == "__main__":
       Lime = LimeReader(args.center, args.time, args.samprate, args.bw, args.channel) 
       Lime.getsignal()
       Lime.convertsig()
+      Lime.stopstream()
       Lime.savetofile(args.filename[0])
+      
       
     
     else:
