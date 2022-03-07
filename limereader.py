@@ -28,10 +28,12 @@ class LimeReader:
       self.sdr.setGain(SOAPY_SDR_RX, RX2, "LNA", 0)      
       self.sdr.setGain(SOAPY_SDR_RX, RX1, "PGA", 0) # programmable-gain amplifier (PGA)
       self.sdr.setGain(SOAPY_SDR_RX, RX2, "PGA", 0)       
-      self.sdr.setGain(SOAPY_SDR_RX, RX1, 0)
-      self.sdr.setGain(SOAPY_SDR_RX, RX2, 0) 
-      self.sdr.setDCOffsetMode(SOAPY_SDR_RX, 0, False)  
-      self.sdr.setDCOffsetMode(SOAPY_SDR_RX, 1, False)
+      
+      # self.sdr.setGain(SOAPY_SDR_RX, RX1, 0)
+      # self.sdr.setGain(SOAPY_SDR_RX, RX2, 0) 
+      # self.sdr.setDCOffsetMode(SOAPY_SDR_RX, 0, False)  
+      # self.sdr.setDCOffsetMode(SOAPY_SDR_RX, 1, False)
+      
       self.sdr.setFrequency(SOAPY_SDR_RX, RX1, self.freq)         # Tune the LO
       self.sdr.setFrequency(SOAPY_SDR_RX, RX2, self.freq)         # Tune the LO
       self.RX1_buff = np.empty(2 * self.n, np.int16)                 # Create memory buffer for data stream
@@ -104,12 +106,14 @@ class LimeReader:
     # Convert interleaved shorts (received signal) to numpy.complex64 normalized between [-1, 1]
       RX1bits = self.RX1_buff.astype(float) / np.power(2.0, self.rx_bits-1)
       RX2bits = self.RX2_buff.astype(float) / np.power(2.0, self.rx_bits-1)
-      RX1complex = (RX1bits[::2] + 1j*RX1bits[1::2]).astype(np.complex64) 
-      RX2complex = (RX2bits[::2] + 1j*RX2bits[1::2]).astype(np.complex64)
-      RX1complex = np.complex64(RX1complex)
-      RX2complex = np.complex64(RX2complex)
-      self.RX1complex = np.insert(RX1complex, 0, (self.fs + 1j*self.freq) )
-      self.RX2complex = np.insert(RX2complex, 0, (self.fs + 1j*self.freq) )
+      # RX1complex = (RX1bits[::2] + 1j*RX1bits[1::2]).astype(np.complex64) 
+      # RX2complex = (RX2bits[::2] + 1j*RX2bits[1::2]).astype(np.complex64)
+      RX1complex = (RX1bits[::2] + 1j*RX1bits[1::2])
+      RX2complex = (RX2bits[::2] + 1j*RX2bits[1::2])
+      RX1complex = np.insert(RX1complex, 0, (self.fs + 1j*self.freq) )
+      RX2complex = np.insert(RX2complex, 0, (self.fs + 1j*self.freq) )
+      self.RX1complex = np.complex64(RX1complex)
+      self.RX2complex = np.complex64(RX2complex)
       return RX1complex, RX2complex
    
     elif(self.channel[0] == 1):

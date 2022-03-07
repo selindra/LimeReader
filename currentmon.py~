@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jan 19 11:22:40 2022
+
+@author: selin
+"""
+
+from limereader import LimeReader
+import numpy as np
+import argparse
+
+def looper(center, span, dcct):    
+    
+    mylime = LimeReader(center, 1, span*2, span*2, [1]) #span*2==fs???? and bw how related to span
+    
+    while True:
+        mylime.getsignal()
+            df = mylime.convertsig()
+            df = df[1:]
+            n = int(span*2 * 1) 
+            ff = abs(np.fft.fftshift(np.fft.fft(df)))**2
+            x = np.fft.fftshift(np.fft.fftfreq(n, d=1/span*2)) + center
+            area = np.trapz(ff,x)/dcct
+            print(area)
+
+
+
+if __name__ == "__main__":
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--center", type=float, nargs='?', help="Set local oscillator frequency")
+  parser.add_argument("--span", type=float, nargs='?', help="Set span")
+  parser.add_argument("--dcct", type=float, nargs='?', help="Give the DCCT current value")
+  args = parser.parse_args()
+  looper(args.center, args.span, args.dcct) 
+   
+
+   
+    
+    
+
+        
+
+
+
