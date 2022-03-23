@@ -3,6 +3,7 @@ import argparse
 import SoapySDR
 from SoapySDR import SOAPY_SDR_RX, SOAPY_SDR_CS16
 import time 
+from datetime import datetime
 
 class LimeReader:
   #at first one has to initialize SDR. Init method sets all preferences and setups the data streams
@@ -16,7 +17,7 @@ class LimeReader:
     RX2 = 1
     self.fs=fs
     self.sdr = SoapySDR.Device(dict(driver="lime")) # Create AIR-T instance
-      
+    rx_bw = rx_bw  
     if (len(self.channel) == 2):
       self.sdr.setSampleRate(SOAPY_SDR_RX, RX1, fs)   # Set sample rate
       self.sdr.setSampleRate(SOAPY_SDR_RX, RX2, fs)          
@@ -111,7 +112,9 @@ class LimeReader:
       RX1complex = (RX1bits[::2] + 1j*RX1bits[1::2])
       RX2complex = (RX2bits[::2] + 1j*RX2bits[1::2])
       RX1complex = np.insert(RX1complex, 0, (self.fs + 1j*self.freq) )
+      RX1complex = np.insert(RX1complex, 1, (time.time() + 1j*time.time()))
       RX2complex = np.insert(RX2complex, 0, (self.fs + 1j*self.freq) )
+      RX2complex = np.insert(RX2complex, 1, (time.time() + 1j*time.time()))
       self.RX1complex = np.complex64(RX1complex)
       self.RX2complex = np.complex64(RX2complex)
       return RX1complex, RX2complex
