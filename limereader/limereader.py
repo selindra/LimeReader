@@ -3,7 +3,7 @@ import argparse
 import SoapySDR
 from SoapySDR import SOAPY_SDR_RX, SOAPY_SDR_CS16
 import time 
-from datetime import datetime
+
 
 class LimeReader:
   #at first one has to initialize SDR. Init method sets all preferences and setups the data streams
@@ -107,8 +107,6 @@ class LimeReader:
     # Convert interleaved shorts (received signal) to numpy.complex64 normalized between [-1, 1]
       RX1bits = self.RX1_buff.astype(float) / np.power(2.0, self.rx_bits-1)
       RX2bits = self.RX2_buff.astype(float) / np.power(2.0, self.rx_bits-1)
-      # RX1complex = (RX1bits[::2] + 1j*RX1bits[1::2]).astype(np.complex64) 
-      # RX2complex = (RX2bits[::2] + 1j*RX2bits[1::2]).astype(np.complex64)
       RX1complex = (RX1bits[::2] + 1j*RX1bits[1::2])
       RX2complex = (RX2bits[::2] + 1j*RX2bits[1::2])
       RX1complex = np.insert(RX1complex, 0, (self.fs + 1j*self.freq) )
