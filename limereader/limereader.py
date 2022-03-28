@@ -135,10 +135,9 @@ class LimeReader:
     if(len(self.channel) == 2):
       self.RX1complex.tofile(filenames[0])
       self.RX2complex.tofile(filenames[1])
-    elif(self.channel[0] == 1):
-      self.RX1complex.tofile(filenames[0])
-    elif(self.channel[0] == 2):
-      self.RX2complex.tofile(filenames[0])
+    else:
+      self.RX1complex.tofile(filenames)
+
 
 
 if __name__ == "__main__":
@@ -151,36 +150,52 @@ if __name__ == "__main__":
   parser.add_argument("--filename", type=str, action='append', nargs='+', help="Path to saved file")
   args = parser.parse_args()
   
-  if args.time and args.fs and args.filename and args.channel and args.bw:
+  if args.filename is None:
+     filename=[]
+     if len(args.channel)==2:
+         filename.append('channel1{}.bin'.format(str(time.strftime("%Y-%m-%d-%H:%M:%S",time.localtime()))))
+         filename.append('channel2{}.bin'.format(str(time.strftime("%Y-%m-%d-%H:%M:%S",time.localtime()))))
+     elif args.channel[0]==1:
+         filename.append('channel1{}.bin'.format(str(time.strftime("%Y-%m-%d-%H:%M:%S",time.localtime()))))
+     elif args.channel[0]==2:
+         filename.append('channel2{}.bin'.format(str(time.strftime("%Y-%m-%d-%H:%M:%S",time.localtime()))))
+  elif(len(args.filename[0]) == len(args.channel)):
+      filename=[]
+      if len(args.channel) == 2:
+          filename.append(args.filename[0][0])
+          filename.append(args.filename[0][1])
+      else:    
+          filename.append(args.filename[0][0])
+  else:
+      print ("channels amount not equal to amount of files")          
+     
+     
+  if args.time and args.fs and args.channel and args.bw:
     print ("Central frequency set to ", args.center, " Hz.")
     print ("Measurement time set to ", args.time, " sec.")
     print ("Sampling rate set to ", args.fs, " Samples/sec.")
     print ("Bandwidth set to ", args.bw, " Hz.")
 
-    if ( len(args.channel) == len(args.filename[0]) and len(args.channel) == 1 ):
+    if ( len(args.channel) == 1):
       print ("Reading from channels ", args.channel[0])
-      print ("file saved as: ", args.filename[0][0])
+      print ("file saved as: ", filename[0])
       #initialize Lime SDR with entered measure time, bandwidth, sampling rate
       Lime = LimeReader(args.center, args.time, args.fs, args.bw, args.channel) 
       Lime.getsignal()
       Lime.stopstream()
       Lime.convertsig()
-      Lime.savetofile(args.filename[0])
+      Lime.savetofile(filename[0])
     
-    elif ( len(args.channel) == len(args.filename[0]) and len(args.channel) == 2 ):
+    elif ( len(args.channel) == 2 ):
       print ("Reading from channels ", args.channel[0],args.channel[1])
-      print ("file saved as: ", args.filename[0][0], args.filename[0][1])
+      print ("file saved as: ", filename[0], filename[1])
   #initialize Lime SDR with entered measure time, bandwidth, sampling rate
       Lime = LimeReader(args.center, args.time, args.fs, args.bw, args.channel) 
       Lime.getsignal()
       Lime.stopstream()
       Lime.convertsig()
-      Lime.savetofile(args.filename[0])
-      
-      
-    
+      Lime.savetofile(filename)
+   
     else:
-      print ("channels amount not equal to amount of files")     
-  else:
-    print ("No parameters were given")
+      print ("No parameters were given")
 
